@@ -95,7 +95,8 @@ jobs:
               echo "Microservice service is not ready after multiple retries."
               exit 1
             fi
-            retries=$((retries+1))
+            retries=$((retries+5))
+            kubectl get service key-value-service -n default
             sleep 5
           done
           echo "Microservice service is ready."
