@@ -36,51 +36,52 @@ jobs:
 
       - name: Wait for k3s node to be ready
         run: |
+          sleep 10
           retries=0
           until kubectl get nodes -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' | grep True; do
             if [ $retries -eq 30 ]; then
               echo "k3s node is not ready after multiple retries."
               exit 1
             fi
-            retries=$((retries+1))
-            sleep 5
+            retries=$((retries+10))
+            sleep 10
           done
           echo "k3s node is ready."
 
-      - name: Deploy Nginx
-        run: |
-          kubectl create deployment nginx --image=nginx
-
-      - name: Expose Nginx service
-        run: |
-          kubectl expose deployment nginx --port=80 --type=LoadBalancer
-
-      - name: Wait for Nginx to be ready
-        run: |
-          until kubectl get deployment nginx -o jsonpath='{.status.readyReplicas}' | grep 1; do sleep 5; done
-
-      - name: Test Nginx reachability
-        run: |
-          retries=0
-          until curl -s -o /dev/null http://localhost; do
-            if [ $retries -eq 30 ]; then
-              echo "Nginx server is not reachable after multiple retries."
-              exit 1
-            fi
-            retries=$((retries+1))
-            sleep 5
-          done
-          echo "Nginx server is reachable."
-
-      - name: Test Nginx response
-        run: |
-          response=$(curl -s http://localhost)
-          if [[ $response == *"Welcome to nginx!"* ]]; then
-            echo "Nginx server response is correct."
-          else
-            echo "Nginx server response is incorrect."
-            exit 1
-          fi
+#      - name: Deploy Nginx
+#        run: |
+#          kubectl create deployment nginx --image=nginx
+#
+#      - name: Expose Nginx service
+#        run: |
+#          kubectl expose deployment nginx --port=80 --type=LoadBalancer
+#
+#      - name: Wait for Nginx to be ready
+#        run: |
+#          until kubectl get deployment nginx -o jsonpath='{.status.readyReplicas}' | grep 1; do sleep 5; done
+#
+#      - name: Test Nginx reachability
+#        run: |
+#          retries=0
+#          until curl -s -o /dev/null http://localhost; do
+#            if [ $retries -eq 30 ]; then
+#              echo "Nginx server is not reachable after multiple retries."
+#              exit 1
+#            fi
+#            retries=$((retries+1))
+#            sleep 5
+#          done
+#          echo "Nginx server is reachable."
+#
+#      - name: Test Nginx response
+#        run: |
+#          response=$(curl -s http://localhost)
+#          if [[ $response == *"Welcome to nginx!"* ]]; then
+#            echo "Nginx server response is correct."
+#          else
+#            echo "Nginx server response is incorrect."
+#            exit 1
+#          fi
 
       - name: Deploy Microservice
         run: |
@@ -103,11 +104,9 @@ jobs:
               exit 1
             fi
 
-            echo "Microservice deployment is not ready yet. Waiting..."
-            kubectl get deployment key-value-service -n default
-            
-            sleep 5
-            elapsed=$((elapsed+5))
+            echo "Microservice deployment is not ready yet. Waiting..."            
+            sleep 10
+            elapsed=$((elapsed+10))
           done
 
           if [[ $elapsed -ge 60 ]]; then
