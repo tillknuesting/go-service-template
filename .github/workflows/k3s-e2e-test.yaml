@@ -1,4 +1,4 @@
-name: Install k3s and Deploy NGINX
+name: K3s and Nginx
 
 on:
   push:
@@ -6,58 +6,42 @@ on:
       - main
 
 jobs:
-  install-k3s-deploy-nginx:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Setup k3s cache
-        id: cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.kube
-          key: k3s-kubeconfig-${{ runner.os }}-${{ hashFiles('install_k3s.sh') }}
 
       - name: Install k3s
         run: |
-          if [ ! -d ~/.kube ]; then
-            mkdir -p ~/.kube
-          fi
+          curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--no-deploy traefik" sh -
 
-          if [ -z "$(ls -A ~/.kube)" ]; then
-            curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="latest" sh -
-            sleep 10
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl version --short
-          else
-            echo "Using cached kubeconfig"
-          fi
-
-      - name: Save kubeconfig to cache
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Wait for k3s to be ready
         run: |
-          mkdir -p ~/.kube
-          cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          until kubectl get nodes | grep Ready; do sleep 5; done
 
-      - name: Check if k3s node is ready
-        run: |
-          node_ready=$(kubectl get nodes -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}')
-          if [[ $node_ready != *"True"* ]]; then
-            echo "Error: k3s node is not ready."
-            exit 1
-          fi
-
-      - name: Deploy NGINX
+      - name: Deploy Nginx
         run: |
           kubectl create deployment nginx --image=nginx
 
-      - name: Wait for NGINX deployment
+      - name: Expose Nginx service
         run: |
-          kubectl rollout status deployment/nginx
+          kubectl expose deployment nginx --port=80 --type=LoadBalancer
 
-      - name: Test NGINX deployment
+      - name: Wait for Nginx to be ready
         run: |
-          service_ip=$(kubectl get svc nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          curl http://$service_ip
+          until kubectl get deployment nginx -o jsonpath='{.status.readyReplicas}' | grep 1; do sleep 5; done
+
+      - name: Test Nginx reachability
+        run: |
+          retries=0
+          until curl -s -o /dev/null http://localhost; do
+            if [ $retries -eq 30 ]; then
+              echo "Nginx server is not reachable after multiple retries."
+              exit 1
+            fi
+            retries=$((retries+1))
+            sleep 5
+          done
+          echo "Nginx server is reachable."
