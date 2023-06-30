@@ -20,10 +20,10 @@ spec:
           env:
             - name: SERVER_ADDRESS
               value: "0.0.0.0:8080"
-#            - name: SHUTDOWN_TIMEOUT
-#              value: "10s"
+            - name: SHUTDOWN_TIMEOUT
+              value: 10s
             - name: ENABLE_LOGGING_MIDDLEWARE
-              value: "true"
+              value: true
           readinessProbe:
             httpGet:
               path: /readyz
