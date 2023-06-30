@@ -1,4 +1,4 @@
-name: K3s and Nginx
+name: Kubernetes e2e test
 
 on:
   push:
@@ -24,16 +24,10 @@ jobs:
         run: ./scripts/wait-for-k3s.sh
 
       - name: Wait for k3s node to be ready
-        run: ./scripts/wait-for-k3s-node.sh
+        run: ./scripts/wait-for-node.sh
 
       - name: Deploy Microservice
         run: ./scripts/deploy-microservice.sh
 
-      - name: Expose Microservice service
-        run: ./scripts/expose-microservice.sh
-
-      - name: Wait for Microservice service to have NodePort
-        run: ./scripts/wait-for-nodeport.sh
-
-      - name: Send POST request to the service
-        run: ./scripts/send-post-request.sh
+      - name: Run Test
+        run: ./scripts/test.sh

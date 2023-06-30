@@ -58,7 +58,8 @@ func main() {
 		serverPort      = flag.String("address", useEnvOrDefaultIfNotSet(os.Getenv("SERVER_ADDRESS"), "localhost:8080").(string), "server address")
 		shutdownTimeout = flag.Duration("shutdown-timeout", useEnvOrDefaultIfNotSet(os.Getenv("SHUTDOWN_TIMEOUT"),
 			time.Second*10).(time.Duration), "shutdown timeout e.g. 10s")
-		enableLoggingMiddleware = flag.Bool("enable-logging-middleware", useEnvOrDefaultIfNotSet(os.Getenv("ENABLE_LOGGING_MIDDLEWARE"), false).(bool), "enable logging middleware")
+		enableLoggingMiddleware = flag.Bool("enable-logging-middleware",
+			useEnvOrDefaultIfNotSet(os.Getenv("ENABLE_LOGGING_MIDDLEWARE"), true).(bool), "enable logging middleware")
 	)
 
 	flag.Parse()
