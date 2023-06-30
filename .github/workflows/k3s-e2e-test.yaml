@@ -29,5 +29,5 @@ jobs:
       - name: Deploy Microservice
         run: ./scripts/deploy-microservice.sh
 
-      - name: Run Test
+      - name: Run test that verifies the behavior of the Microservice
         run: ./scripts/test.sh

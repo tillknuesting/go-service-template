@@ -1,3 +1,4 @@
+LABEL org.opencontainers.image.description="Go service template"
 ARG  BUILDER_IMAGE=golang:alpine
 ############################
 # STEP 1 build executable binary
