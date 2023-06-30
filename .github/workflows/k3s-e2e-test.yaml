@@ -1,0 +1,59 @@
+name: Install k3s and Deploy NGINX
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  install-k3s-deploy-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup k3s cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.kube
+          key: k3s-kubeconfig-${{ runner.os }}-${{ hashFiles('install_k3s.sh') }}
+
+      - name: Install k3s
+        run: |
+          if [ -z "$(ls -A ~/.kube)" ]; then
+            curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="latest" sh -
+            sleep 10
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            kubectl version --short
+          else
+            echo "Using cached kubeconfig"
+          fi
+
+      - name: Save kubeconfig to cache
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.kube
+          cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+
+      - name: Check if k3s node is ready
+        run: |
+          node_ready=$(kubectl get nodes -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}')
+          if [[ $node_ready != *"True"* ]]; then
+            echo "Error: k3s node is not ready."
+            exit 1
+          fi
+
+      - name: Deploy NGINX
+        run: |
+          kubectl create deployment nginx --image=nginx
+
+      - name: Wait for NGINX deployment
+        run: |
+          kubectl rollout status deployment/nginx
+
+      - name: Test NGINX deployment
+        run: |
+          service_ip=$(kubectl get svc nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          curl http://$service_ip
