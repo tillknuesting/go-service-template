@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: key-value-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: key-value-service
+  template:
+    metadata:
+      labels:
+        app: key-value-service
+    spec:
+      containers:
+        - name: key-value-service
+          image: ghcr.io/tillknuesting/go-service-template:main
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_ADDRESS
+              value: "0.0.0.0:8080"
+            - name: SHUTDOWN_TIMEOUT
+              value: "10s"
+            - name: ENABLE_LOGGING_MIDDLEWARE
+              value: "true"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
