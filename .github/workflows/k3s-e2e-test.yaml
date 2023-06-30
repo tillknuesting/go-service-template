@@ -87,18 +87,19 @@ jobs:
         run: |
           kubectl expose deployment key-value-service --port=8080 --target-port=8080 --type=NodePort -n default
 
-      - name: Wait for Microservice service to exist
+      - name: Wait for Microservice service to have IP address
         run: |
           retries=0
-          until kubectl get service key-value-service -n default --ignore-not-found; do
+          until kubectl get service key-value-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}' | grep -v "<none>"; do
             if [ $retries -eq 30 ]; then
-              echo "Microservice service does not exist after multiple retries."
+              echo "Microservice service does not have an IP address after multiple retries."
               exit 1
             fi
             retries=$((retries+1))
             sleep 5
           done
-          echo "Microservice service exists."
+          echo "Microservice service has an IP address."
+      
       
 
       - name: Send POST request to the service
