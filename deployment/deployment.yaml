@@ -17,13 +17,13 @@ spec:
           image: ghcr.io/tillknuesting/go-service-template:main
           ports:
             - containerPort: 8080
-          env:
-            - name: SERVER_ADDRESS
-              value: "0.0.0.0:8080"
-            - name: SHUTDOWN_TIMEOUT
-              value: 10s
-            - name: ENABLE_LOGGING_MIDDLEWARE
-              value: true
+#          env:
+#            - name: SERVER_ADDRESS
+#              value: "0.0.0.0:8080"
+#            - name: SHUTDOWN_TIMEOUT
+#              value: 10s
+#            - name: ENABLE_LOGGING_MIDDLEWARE
+#              value: true
           readinessProbe:
             httpGet:
               path: /readyz
