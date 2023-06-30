@@ -98,11 +98,12 @@ jobs:
             elif [[ $deployment_status == "Error" ]]; then
               echo "Microservice deployment encountered an error. Printing debug information..."
               kubectl describe deployment key-value-service -n default
+              kubectl logs --tail=50 deployment/key-value-service -n default
+              kubectl get events --field-selector involvedObject.name=key-value-service -n default
               exit 1
             fi
 
             echo "Microservice deployment is not ready yet. Waiting..."
-            kubectl get deployment key-value-service -n default -o json
             sleep 5
             elapsed=$((elapsed+5))
           done
@@ -111,8 +112,11 @@ jobs:
             echo "Timeout exceeded. Microservice deployment is not ready within the specified time."
             echo "Printing debug information..."
             kubectl describe deployment key-value-service -n default
+            kubectl logs --tail=50 deployment/key-value-service -n default
+            kubectl get events --field-selector involvedObject.name=key-value-service -n default
             exit 1
           fi
+      
       
       
       
