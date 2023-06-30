@@ -22,6 +22,10 @@ jobs:
 
       - name: Install k3s
         run: |
+          if [ ! -d ~/.kube ]; then
+            mkdir -p ~/.kube
+          fi
+
           if [ -z "$(ls -A ~/.kube)" ]; then
             curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="latest" sh -
             sleep 10
