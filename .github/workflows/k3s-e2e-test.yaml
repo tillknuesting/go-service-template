@@ -95,7 +95,7 @@ jobs:
             if [[ $deployment_status == "True" ]] && [[ $replicas_ready -eq $replicas_desired ]]; then
               echo "Microservice deployment is ready."
               break
-            elif [[ $deployment_status == "False" ]]; then
+            elif [[ $deployment_status == "Error" ]]; then
               echo "Microservice deployment encountered an error. Printing debug information..."
               kubectl describe deployment key-value-service -n default
               exit 1
@@ -113,6 +113,7 @@ jobs:
             kubectl describe deployment key-value-service -n default
             exit 1
           fi
+      
       
       
       
