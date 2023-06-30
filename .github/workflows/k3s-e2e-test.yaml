@@ -1,4 +1,4 @@
-name: K3s-end-to-end-test
+name: K3s and Nginx
 
 on:
   push:
@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Set execute permissions for scripts
+        run: |
+          chmod +x ./scripts/*.sh
 
       - name: Install k3s
         run: ./scripts/install-k3s.sh
