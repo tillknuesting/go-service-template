@@ -84,5 +84,23 @@ jobs:
 
       - name: Deploy Microservice
         run: |
-          kubectl apply -f deployment/deployment.yaml
-          kubectl rollout status deployment/key-value-service -n default
+          kubectl apply -f deployment/deployment.yaml -n default
+          timeout=60
+          elapsed=0
+          while [[ $elapsed -lt $timeout ]]; do
+            if kubectl rollout status deployment/key-value-service -n default | grep "successfully rolled out"; then
+              echo "Microservice deployment is ready."
+              break
+            fi
+            echo "Microservice deployment is not ready yet. Waiting..."
+            sleep 5
+            elapsed=$((elapsed+5))
+          done
+
+          if [[ $elapsed -ge $timeout ]]; then
+            echo "Timeout exceeded. Microservice deployment is not ready within the specified time."
+            echo "Printing deployment debug information..."
+            kubectl describe deployment key-value-service -n default
+            exit 1
+          fi
+      
