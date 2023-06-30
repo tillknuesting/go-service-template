@@ -15,8 +15,11 @@ jobs:
 
       - name: Install k3s
         run: |
-          export INSTALL_K3S_EXEC="--no-deploy traefik"
-          curl -sfL https://get.k3s.io | sudo sh -
+          echo "Starting K3s cluster"
+          curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.24.7+k3s1" K3S_KUBECONFIG_MODE=777 INSTALL_K3S_EXEC="server --disable traefik" sh -
+          mkdir -p ~/.kube
+          cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          chmod 600 ~/.kube/config
 
       - name: Wait for k3s service to be running
         run: |
@@ -33,7 +36,7 @@ jobs:
 
       - name: Wait for k3s to be ready
         run: |
-          until kubectl get nodes | grep Ready; do sleep 30; done
+          until kubectl get nodes | grep Ready; do sleep 5; done
 
       - name: Deploy Nginx
         run: |
