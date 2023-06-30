@@ -34,9 +34,18 @@ jobs:
           done
           echo "k3s service is running."
 
-      - name: Wait for k3s to be ready
+      - name: Wait for k3s node to be ready
         run: |
-          until kubectl get nodes | grep Ready; do sleep 5; done
+          retries=0
+          until kubectl get nodes -o jsonpath='{.items[0].status.conditions[?(@.type=="Ready")].status}' | grep True; do
+            if [ $retries -eq 30 ]; then
+              echo "k3s node is not ready after multiple retries."
+              exit 1
+            fi
+            retries=$((retries+1))
+            sleep 5
+          done
+          echo "k3s node is ready."
 
       - name: Deploy Nginx
         run: |
@@ -62,3 +71,13 @@ jobs:
             sleep 5
           done
           echo "Nginx server is reachable."
+
+      - name: Test Nginx response
+        run: |
+          response=$(curl -s http://localhost)
+          if [[ $response == *"Welcome to nginx!"* ]]; then
+            echo "Nginx server response is correct."
+          else
+            echo "Nginx server response is incorrect."
+            exit 1
+          fi
