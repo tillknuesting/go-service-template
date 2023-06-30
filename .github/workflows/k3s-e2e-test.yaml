@@ -75,7 +75,7 @@ jobs:
       - name: Test Nginx response
         run: |
           response=$(curl -s http://localhost)
-          if [[ $response == *"Welcome to nginx!"* ]]; then
+          if [[ $response == *"Welcome to ngincx!"* ]]; then
             echo "Nginx server response is correct."
           else
             echo "Nginx server response is incorrect."
