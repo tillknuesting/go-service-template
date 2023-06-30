@@ -81,3 +81,8 @@ jobs:
             echo "Nginx server response is incorrect."
             exit 1
           fi
+
+      - name: Deploy Microservice
+        run: |
+          kubectl apply -f deployment/deployment.yaml
+          kubectl rollout status deployment/key-value-service -n default
