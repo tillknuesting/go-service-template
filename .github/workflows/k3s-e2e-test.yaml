@@ -88,23 +88,25 @@ jobs:
           timeout=30
           elapsed=0
           while [[ $elapsed -lt $timeout ]]; do
-            rollout_status=$(kubectl rollout status deployment/key-value-service -n default)
-            if [[ $rollout_status == *"successfully rolled out"* ]]; then
+            rollout_output=$(kubectl rollout status deployment/key-value-service -n default)
+            if [[ $rollout_output == *"successfully rolled out"* ]]; then
               echo "Microservice deployment is ready."
               break
-            elif [[ $rollout_status == *"is in progress"* ]]; then
+            elif [[ $rollout_output == *"is in progress"* ]]; then
               echo "Microservice deployment is in progress. Waiting..."
               sleep 5
               elapsed=$((elapsed+5))
             else
               echo "Microservice deployment encountered an error. Printing debug information..."
-              kubectl describe deployment key-value-service -n default
+              kubectl rollout status deployment/key-value-service -n default
               exit 1
             fi
           done
 
           if [[ $elapsed -ge $timeout ]]; then
             echo "Timeout exceeded. Microservice deployment is not ready within the specified time."
+            echo "Printing debug information..."
+            kubectl describe deployment key-value-service -n default
             exit 1
           fi
       
