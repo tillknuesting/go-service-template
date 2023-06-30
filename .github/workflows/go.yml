@@ -21,4 +21,7 @@ jobs:
            check-latest: true
        - run: go build -v ./...
        - run: go test -race -v ./...
+       - run: go test -bench=. -benchmem
+
+
        
