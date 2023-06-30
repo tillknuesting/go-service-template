@@ -16,7 +16,7 @@ jobs:
       - name: Install k3s
         run: |
           echo "Starting K3s cluster"
-          curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.24.7+k3s1" K3S_KUBECONFIG_MODE=777 INSTALL_K3S_EXEC="server --disable traefik" sh -
+          curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.25.11+k3s1" K3S_KUBECONFIG_MODE=777 INSTALL_K3S_EXEC="server --disable traefik" sh -
           mkdir -p ~/.kube
           cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
           chmod 600 ~/.kube/config
@@ -75,7 +75,7 @@ jobs:
       - name: Test Nginx response
         run: |
           response=$(curl -s http://localhost)
-          if [[ $response == *"Welcome to ngincx!"* ]]; then
+          if [[ $response == *"Welcome to nginx!"* ]]; then
             echo "Nginx server response is correct."
           else
             echo "Nginx server response is incorrect."
