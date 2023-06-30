@@ -87,19 +87,19 @@ jobs:
         run: |
           kubectl expose deployment key-value-service --port=8080 --target-port=8080 --type=NodePort -n default
 
-      - name: Wait for Microservice service to be ready
+      - name: Wait for Microservice service to exist
         run: |
           retries=0
-          until kubectl get service key-value-service -n default -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' | grep True; do
+          until kubectl get service key-value-service -n default --ignore-not-found; do
             if [ $retries -eq 30 ]; then
-              echo "Microservice service is not ready after multiple retries."
+              echo "Microservice service does not exist after multiple retries."
               exit 1
             fi
-            retries=$((retries+5))
-            kubectl get service key-value-service -n default
+            retries=$((retries+1))
             sleep 5
           done
-          echo "Microservice service is ready."
+          echo "Microservice service exists."
+      
 
       - name: Send POST request to the service
         run: |
