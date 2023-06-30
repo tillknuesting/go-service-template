@@ -15,7 +15,8 @@ jobs:
 
       - name: Install k3s
         run: |
-          curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--no-deploy traefik" sh -
+          export INSTALL_K3S_EXEC="--no-deploy traefik"
+          curl -sfL https://get.k3s.io | sh -
 
       - name: Wait for k3s to be ready
         run: |
