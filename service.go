@@ -158,12 +158,12 @@ func (env *ServerConfig) server() {
 
 func LivenessProbeHandler(w http.ResponseWriter, r *http.Request) {
 	// TDOO: Add more checks here, perhaps introduce global state to check if the server is still alive
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func ReadynisssProbeHandler(w http.ResponseWriter, r *http.Request) {
 	// TDOO: Add more checks here, perhaps introduce global state to check if the server ready to serve requests
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func (kv *KeyValueStore) SetHandler(w http.ResponseWriter, r *http.Request) {
